@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="icon" type="image/png" href="iconogas.png">
+    <title>Gestor de gas</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+
+    <div id="toast-container" class="toast-container"></div>
+
+    <div class="app-container">
+        <header class="top-header">
+            <a href="index.html" class="btn-back">‹ Volver</a>
+            <h2>🔥 Gestor de gas</h2>
+        </header>
+
+        <form class="config-card text-center" onsubmit="guardarGas(event)">
+            <h3 class="form-title-center" id="form-gas-title">Registrar cambio de gas</h3>
+            <input type="hidden" id="edit-gas-id">
+
+            <div class="gas-form-layout">
+                <div class="checkbox-container">
+                    <label class="custom-checkbox">
+                        <input type="checkbox" id="chk-cocina">
+                        <span class="checkmark"></span>
+                        Cocina 🔥
+                    </label>
+                    <label class="custom-checkbox">
+                        <input type="checkbox" id="chk-calefon">
+                        <span class="checkmark"></span>
+                        Calefón 🔥
+                    </label>
+                </div>
+
+                <div class="form-group margin-reset">
+                    <label style="text-align: center; font-size: 0.85rem;">Fecha de cambio</label>
+                    <input type="date" id="fecha-gas" required>
+                </div>
+            </div>
+
+            <div class="modal-actions" style="margin-top: 1.2rem;">
+                <button type="button" id="btn-cancel-gas" class="btn-submit" style="background:#20b2aa; display:none;"
+                    onclick="resetFormGas()">Cancelar</button>
+                <button type="submit" id="btn-save-gas" class="btn-submit">Guardar registro</button>
+            </div>
+        </form>
+
+        <div class="table-wrapper">
+            <div id="loading-gas" class="loading-spinner" style="color: #000000 !important;">⏳ Cargando registros de
+                gas...</div>
+            <table class="data-table" id="tabla-gas" style="display: none;">
+                <thead>
+                    <tr>
+                        <th>Día</th>
+                        <th>Mes</th>
+                        <th>Año</th>
+                        <th>Cant.</th>
+                        <th>Cocina</th>
+                        <th>Calefón</th>
+                        <th>Acciones</th>
+                    </tr>
+                </thead>
+                <tbody id="tabla-gas-body"></tbody>
+            </table>
+        </div>
+    </div>
+
+    <div id="modal-edit-gas" class="modal-overlay" style="display: none;">
+        <div class="modal-box">
+            <h3 class="form-title-center" style="color: var(--blue-btn-text);">Editar registro de gas</h3>
+
+            <form onsubmit="guardarEdicionGas(event)">
+                <input type="hidden" id="edit-gas-modal-id">
+
+                <div class="form-group" style="text-align: left;">
+                    <label for="edit-fecha-gas">Fecha de cambio:</label>
+                    <input type="date" id="edit-fecha-gas" required>
+                </div>
+
+                <div class="checkbox-container" style="justify-content: center; margin: 1rem 0;">
+                    <label class="custom-checkbox">
+                        <input type="checkbox" id="edit-chk-cocina">
+                        <span class="checkmark"></span>
+                        Cocina 🔥
+                    </label>
+                    <label class="custom-checkbox">
+                        <input type="checkbox" id="edit-chk-calefon">
+                        <span class="checkmark"></span>
+                        Calefón 🔥
+                    </label>
+                </div>
+
+                <div class="modal-actions">
+                    <button type="button" class="btn-submit" style="background:#20b2aa;"
+                        onclick="cerrarModalEditGas()">Cancelar</button>
+                    <button type="submit" class="btn-submit" style="background:#1976d2;">Guardar</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <div id="modal-confirm-gas" class="modal-overlay" style="display: none;">
+        <div class="modal-box">
+            <h3 style="color: var(--red-btn-text);">¿Eliminar registro?</h3>
+            <p>Esta acción borrará el registro de gas permanentemente.</p>
+            <div class="modal-actions">
+                <button class="btn-submit" style="background:#20b2aa;" onclick="cerrarModalGas()">Cancelar</button>
+                <button class="btn-submit" style="background:#d84315;" id="btn-confirm-delete-gas">Eliminar</button>
+            </div>
+        </div>
+    </div>
+
+    <script src="gas.js"></script>
+</body>
+</html>

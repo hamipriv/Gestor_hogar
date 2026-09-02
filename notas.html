@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="icon" type="image/png" href="iconog.png">
+    <title>Notas</title>
+    <link rel="stylesheet" href="styles.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body>
+
+    <div class="app-container">
+        <header class="top-header">
+            <a href="index.html" class="btn-back">‹ Volver</a>
+            <h2>📌 Notas</h2>
+        </header>
+
+        <div class="config-card">
+            <form id="postit-form">
+                <div class="form-group margin-reset">
+                    <div class="nota-header-row">
+                        <label for="input-nota">Nota:</label>
+                        <div class="nota-actions">
+                            <button type="button" id="btn-mic" class="btn-mic-nota" title="Dictar nota por voz">
+                                <i class="fa-solid fa-microphone"></i>
+                            </button>
+                            <button type="submit" class="btn-submit btn-submit-sm"> Guardar
+                            </button>
+                        </div>
+                    </div>
+
+                    <textarea 
+                        id="input-nota" 
+                        class="nota-textarea"
+                        placeholder="Escribe tu nota aquí..." 
+                        required 
+                        rows="2"
+                        oninput="this.style.height = ''; this.style.height = this.scrollHeight + 'px'"
+                    ></textarea>
+
+                    <div id="voice-status" class="nota-voice-status"></div>
+                </div>
+            </form>
+        </div>
+
+        <main id="postits-container" class="postits-grid">
+            <div id="loading-spinner" class="loading-text">
+                <i class="fa-solid fa-spinner fa-spin"></i> Cargando notas...
+            </div>
+        </main>
+    </div>
+
+    <script src="notas.js"></script>
+</body>
+</html>

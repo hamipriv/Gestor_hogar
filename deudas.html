@@ -1,0 +1,356 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Gestor de deudas</title>
+    <link rel="icon" type="image/png" href="iconod.png">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body class="bg-zinc-950 text-white min-h-screen font-sans pb-12 antialiased">
+
+    <header class="bg-zinc-900 text-white shadow-xl border-b border-zinc-800 sticky top-0 z-30">
+        <div class="max-w-6xl mx-auto px-4 py-3 sm:py-4 flex flex-col sm:flex-row justify-between items-center gap-3 sm:gap-0">
+            <div class="flex items-center space-x-3 w-full sm:w-auto justify-between sm:justify-start">
+                <div class="flex items-center space-x-3">
+                    <a href="index.html" class="px-3 py-2 text-xs font-bold bg-zinc-800 hover:bg-zinc-700 text-zinc-300 rounded-xl transition flex items-center gap-2 border border-zinc-700 shadow-sm" title="Volver al inicio">
+                        <i class="fa-solid fa-arrow-left"></i>
+                        <span class="hidden sm:inline">INICIO</span>
+                    </a>
+                    <div class="bg-blue-500/10 border border-blue-500/30 p-2 sm:p-2.5 rounded-xl text-blue-400 shadow-md">
+                        <i class="fa-solid fa-wallet text-xl sm:text-2xl"></i>
+                    </div>
+                    <div>
+                        <h1 class="text-lg sm:text-xl font-bold leading-tight tracking-wide text-white">Gestor de deudas</h1>
+                        <p class="text-[10px] sm:text-xs text-zinc-400">Gestión de acreedores, cuotas y pagos.</p>
+                    </div>
+                </div>
+            </div>
+
+            <button onclick="openAddDebtModal()" class="w-full sm:w-auto px-5 py-2.5 text-xs sm:text-sm font-bold bg-blue-600 hover:bg-blue-500 text-white rounded-xl shadow-lg shadow-blue-950/40 transition flex items-center justify-center gap-2">
+                <i class="fa-solid fa-plus text-white"></i> Nueva deuda
+            </button>
+        </div>
+
+        <div class="max-w-6xl mx-auto px-2 sm:px-4 mt-1 flex border-t border-zinc-800 text-xs sm:text-sm justify-around sm:justify-start">
+            <button id="tab-pending-btn" onclick="switchTab('pending')" class="tab-active px-3 sm:px-6 py-2.5 sm:py-3 flex items-center gap-2 whitespace-nowrap focus:outline-none transition">
+                <i class="fa-solid fa-square-poll-vertical text-blue-400 text-base sm:text-sm"></i> 
+                <span class="hidden sm:inline">Deudas pendientes</span>
+                <span id="badge-pending" class="bg-blue-500/20 text-blue-300 border border-blue-500/40 text-[10px] sm:text-xs px-2 py-0.5 rounded-full font-extrabold">0</span>
+            </button>
+            <button id="tab-pending-list-btn" onclick="switchTab('pending-list')" class="text-zinc-400 hover:text-white px-3 sm:px-6 py-2.5 sm:py-3 flex items-center gap-2 whitespace-nowrap focus:outline-none transition">
+                <i class="fa-solid fa-list-ul text-amber-400 text-base sm:text-sm"></i> 
+                <span class="hidden sm:inline">Historial pendientes</span>
+                <span id="badge-pending-list" class="bg-amber-500/20 text-amber-300 border border-amber-500/40 text-[10px] sm:text-xs px-2 py-0.5 rounded-full font-extrabold">0</span>
+            </button>
+            <button id="tab-history-btn" onclick="switchTab('history')" class="text-zinc-400 hover:text-white px-3 sm:px-6 py-2.5 sm:py-3 flex items-center gap-2 whitespace-nowrap focus:outline-none transition">
+                <i class="fa-solid fa-circle-check text-emerald-400 text-base sm:text-sm"></i> 
+                <span class="hidden sm:inline">Historial pagadas</span>
+                <span id="badge-history" class="bg-emerald-500/20 text-emerald-300 border border-emerald-500/40 text-[10px] sm:text-xs px-2 py-0.5 rounded-full font-extrabold">0</span>
+            </button>
+        </div>
+    </header>
+
+    <main class="max-w-6xl mx-auto px-3 sm:px-4 mt-6 sm:mt-8">
+
+        <section id="tab-pending" class="space-y-4 sm:space-y-6">
+            <div class="flex justify-between items-center">
+                <h2 class="text-base sm:text-lg font-bold text-white flex items-center gap-2">
+                    <i class="fa-solid fa-square-poll-vertical text-blue-400"></i> Deudas pendientes
+                </h2>
+            </div>
+            <div id="debts-container" class="grid grid-cols-1 md:grid-cols-2 gap-4 sm:gap-6"></div>
+            <div id="empty-pending-state" class="hidden text-center py-12 sm:py-16 bg-zinc-900 rounded-2xl border border-dashed border-zinc-800 px-4">
+                <i class="fa-solid fa-circle-check text-4xl sm:text-5xl text-emerald-500 mb-3"></i>
+                <h3 class="text-base sm:text-lg font-semibold text-white">¡No tienes deudas pendientes!</h3>
+                <button onclick="openAddDebtModal()" class="mt-4 px-4 py-2 bg-blue-600 text-white font-bold rounded-lg text-xs sm:text-sm hover:bg-blue-500 transition">
+                    + Registrar primera deuda
+                </button>
+            </div>
+        </section>
+
+        <section id="tab-pending-list" class="hidden space-y-4 sm:space-y-6">
+            <div class="flex justify-between items-center">
+                <h2 class="text-base sm:text-lg font-bold text-white flex items-center gap-2">
+                    <i class="fa-solid fa-list-ul text-amber-400"></i> Historial de deudas pendientes
+                </h2>
+            </div>
+            <div class="bg-zinc-900 rounded-xl shadow-sm border border-zinc-800 overflow-hidden">
+                <div class="hidden md:block overflow-x-auto">
+                    <table class="w-full text-left border-collapse text-xs sm:text-sm">
+                        <thead>
+                            <tr class="bg-zinc-950 text-zinc-400 text-[10px] sm:text-xs uppercase tracking-wider border-b border-zinc-800">
+                                <th class="p-3 sm:p-4">Tipo</th>
+                                <th class="p-3 sm:p-4">Acreedor / empresa</th>
+                                <th class="p-3 sm:p-4 text-center">Progreso de cuotas</th>
+                                <th class="p-3 sm:p-4 text-right">Pendiente</th>
+                                <th class="p-3 sm:p-4 text-right">Monto total</th>
+                                <th class="p-3 sm:p-4 text-center">Estado</th>
+                                <th class="p-3 sm:p-4 text-center">Acciones</th>
+                            </tr>
+                        </thead>
+                        <tbody id="pending-table-body" class="divide-y divide-zinc-800"></tbody>
+                    </table>
+                </div>
+
+                <div id="pending-mobile-container" class="md:hidden divide-y divide-zinc-800 p-2 space-y-2"></div>
+
+                <div id="empty-pending-list-state" class="hidden text-center py-12">
+                    <i class="fa-solid fa-folder-open text-3xl sm:text-4xl text-zinc-600 mb-2"></i>
+                    <p class="text-zinc-400 text-xs sm:text-sm">No hay registro de deudas pendientes.</p>
+                </div>
+            </div>
+        </section>
+
+        <section id="tab-history" class="hidden space-y-4 sm:space-y-6">
+            <div class="flex justify-between items-center">
+                <h2 class="text-base sm:text-lg font-bold text-white flex items-center gap-2">
+                    <i class="fa-solid fa-circle-check text-emerald-400"></i> Historial de deudas pagadas
+                </h2>
+            </div>
+            <div class="bg-zinc-900 rounded-xl shadow-sm border border-zinc-800 overflow-hidden">
+                <div class="hidden md:block overflow-x-auto">
+                    <table class="w-full text-left border-collapse text-xs sm:text-sm">
+                        <thead>
+                            <tr class="bg-zinc-950 text-zinc-400 text-[10px] sm:text-xs uppercase tracking-wider border-b border-zinc-800">
+                                <th class="p-3 sm:p-4">Tipo</th>
+                                <th class="p-3 sm:p-4">Acreedor / empresa</th>
+                                <th class="p-3 sm:p-4 text-center">Cuotas totales</th>
+                                <th class="p-3 sm:p-4 text-right">Monto total</th>
+                                <th class="p-3 sm:p-4 text-center">Fecha de término</th>
+                                <th class="p-3 sm:p-4 text-center">Estado</th>
+                                <th class="p-3 sm:p-4 text-center">Acciones</th>
+                            </tr>
+                        </thead>
+                        <tbody id="history-table-body" class="divide-y divide-zinc-800"></tbody>
+                    </table>
+                </div>
+
+                <div id="history-mobile-container" class="md:hidden divide-y divide-zinc-800 p-2 space-y-2"></div>
+
+                <div id="empty-history-state" class="hidden text-center py-12">
+                    <i class="fa-solid fa-receipt text-3xl sm:text-4xl text-zinc-600 mb-2"></i>
+                    <p class="text-zinc-400 text-xs sm:text-sm">Aún no hay deudas en el historial.</p>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <div id="upcoming-alerts-modal" class="fixed inset-0 bg-black/80 backdrop-blur-md hidden items-center justify-center p-4 z-50">
+        <div class="bg-zinc-900 rounded-2xl p-5 sm:p-6 w-full max-w-md shadow-2xl space-y-4 border-2 border-white/80">
+            <div class="flex items-center justify-between border-b border-zinc-800 pb-3 relative">
+                <div class="flex items-center justify-center space-x-2 w-full">
+                    <i class="fa-solid fa-bell text-amber-400 text-lg fa-bounce"></i>
+                    <h3 class="font-bold text-amber-400 text-base">Alerta de vencimientos</h3>
+                </div>
+                <button onclick="closeUpcomingModal()" class="text-zinc-400 hover:text-white transition absolute right-0">
+                    <i class="fa-solid fa-xmark text-lg"></i>
+                </button>
+            </div>
+                
+            <div id="upcoming-alerts-list" class="space-y-2.5 max-h-72 overflow-y-auto pr-1">
+            </div>
+
+            <button onclick="closeUpcomingModal()" class="w-full py-2.5 bg-white hover:bg-zinc-200 text-zinc-900 font-extrabold rounded-xl text-xs transition shadow-md">
+                Entendido
+            </button>
+        </div>
+    </div>
+
+    <div id="loading-state" class="flex flex-col items-center justify-center py-12 sm:py-16 space-y-3 sm:space-y-4">
+        <i class="fa-solid fa-spinner fa-spin text-4xl sm:text-5xl md:text-6xl text-blue-500"></i>
+        <p class="text-base sm:text-lg font-bold text-zinc-400">Cargando deudas...</p>
+    </div>
+
+    <div id="modal-add-debt" class="fixed inset-0 bg-black/80 backdrop-blur-sm hidden items-center justify-center z-50 p-2 sm:p-4 overflow-y-auto">
+        <div class="bg-white text-zinc-900 rounded-2xl shadow-2xl max-w-xl w-full p-5 sm:p-6 space-y-4 my-auto">
+            <div class="flex justify-between items-center border-b border-zinc-200 pb-3">
+                <h3 class="text-base sm:text-lg font-bold text-zinc-900"><i class="fa-solid fa-plus-circle text-blue-600 mr-2"></i> Registrar nueva deuda</h3>
+                <button onclick="closeModal('modal-add-debt')" class="text-zinc-400 hover:text-zinc-700 p-1"><i class="fa-solid fa-xmark text-lg"></i></button>
+            </div>
+            <form id="form-add-debt" onsubmit="handleCreateDebt(event)" class="space-y-4">
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
+                    <div>
+                        <label class="block text-[11px] sm:text-xs font-bold text-zinc-700 uppercase mb-1">Acreedor / empresa *</label>
+                        <div class="relative flex items-center">
+                            <input type="text" id="input-creditor" oninput="capitalizeFirstWordOnly(this)" required placeholder="Ej: Carmen" class="w-full pl-3 pr-10 py-2 bg-zinc-50 border border-zinc-300 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none text-xs sm:text-sm text-zinc-900">
+                            <button type="button" onclick="startVoiceRecognition('input-creditor')" class="absolute right-2 text-zinc-400 hover:text-blue-600 p-1 transition" title="Dictar por voz">
+                                <i class="fa-solid fa-microphone text-sm"></i>
+                            </button>
+                        </div>
+                        <div id="voice-status-input-creditor" class="hidden mt-1.5 p-2 rounded-lg text-xs bg-zinc-800 text-zinc-200 border border-zinc-700 space-y-1"></div>
+                    </div>
+
+                    <div>
+                        <label class="block text-[11px] sm:text-xs font-bold text-zinc-700 uppercase mb-1">Tipo de deuda</label>
+                        <div class="relative flex items-center">
+                            <input type="text" id="input-debt-type" oninput="capitalizeFirstWordOnly(this)" placeholder="Ej: Préstamo" class="w-full pl-3 pr-10 py-2 bg-zinc-50 border border-zinc-300 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none text-xs sm:text-sm text-zinc-900">
+                            <button type="button" onclick="startVoiceRecognition('input-debt-type')" class="absolute right-2 text-zinc-400 hover:text-blue-600 p-1 transition" title="Dictar por voz">
+                                <i class="fa-solid fa-microphone text-sm"></i>
+                            </button>
+                        </div>
+                        <div id="voice-status-input-debt-type" class="hidden mt-1.5 p-2 rounded-lg text-xs bg-zinc-800 text-zinc-200 border border-zinc-700 space-y-1"></div>
+                    </div>
+                </div>
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
+                    <div>
+                        <label class="block text-[11px] sm:text-xs font-bold text-zinc-700 uppercase mb-1">Número de cuotas *</label>
+                        <input type="number" id="input-installments-count" min="1" max="100" value="1" required onchange="generateInstallmentInputs()" class="w-full px-3 py-2 bg-zinc-50 border border-zinc-300 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none text-xs sm:text-sm text-zinc-900 font-bold">
+                    </div>
+                    <div>
+                        <label class="block text-[11px] sm:text-xs font-bold text-zinc-700 uppercase mb-1">Monto total ($)</label>
+                        <input type="text" id="input-total-amount" placeholder="Ej: 100.000" oninput="formatTotalAmountInput(this)" class="w-full px-3 py-2 bg-zinc-50 border border-zinc-300 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none text-xs sm:text-sm text-zinc-900 font-bold">
+                    </div>
+                </div>
+
+                <div>
+                    <div class="mb-2 p-2.5 bg-red-50 border border-red-200 rounded-lg flex items-center gap-2 text-red-700 text-xs">
+                        <i class="fa-solid fa-triangle-exclamation text-red-500 text-sm"></i>
+                        <span class="font-bold">Aviso: Puedes modificar abajo el monto, la fecha y el estado de cada cuota.</span>
+                    </div>
+                    <label class="block text-[11px] sm:text-xs font-bold text-zinc-700 uppercase mb-1.5">Ajuste de cuotas</label>
+                    <div id="installments-custom-container" class="max-h-56 overflow-y-auto space-y-2 border border-zinc-200 rounded-lg p-2 bg-zinc-50"></div>
+                </div>
+
+                <div class="flex justify-end space-x-2 pt-3 border-t border-zinc-200">
+                    <button type="button" onclick="closeModal('modal-add-debt')" class="px-4 py-2 text-xs sm:text-sm text-zinc-600 hover:bg-zinc-100 rounded-lg font-bold">Cancelar</button>
+                    <button type="submit" class="px-5 py-2 text-xs sm:text-sm bg-blue-600 hover:bg-blue-500 text-white font-bold rounded-lg shadow-md transition">Guardar deuda</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <div id="modal-edit-debt-info" class="fixed inset-0 bg-black/80 backdrop-blur-sm hidden items-center justify-center z-50 p-3">
+        <div class="bg-white text-zinc-900 rounded-2xl shadow-2xl max-w-md w-full p-5 space-y-4">
+            <div class="flex justify-between items-center border-b border-zinc-200 pb-3">
+                <h3 class="text-sm sm:text-base font-bold text-zinc-900"><i class="fa-solid fa-pen-to-square text-blue-600 mr-2"></i> Editar datos de la deuda</h3>
+                <button onclick="closeModal('modal-edit-debt-info')" class="text-zinc-400 hover:text-zinc-700 p-1"><i class="fa-solid fa-xmark"></i></button>
+            </div>
+            <form id="form-edit-debt-info" onsubmit="handleSaveEditedDebtInfo(event)" class="space-y-3">
+                <input type="hidden" id="edit-debt-info-id">
+                <div>
+                    <label class="block text-[11px] sm:text-xs font-bold text-zinc-700 mb-1">Acreedor / empresa *</label>
+                    <div class="relative flex items-center">
+                        <input type="text" id="edit-debt-info-creditor" oninput="capitalizeFirstWordOnly(this)" required class="w-full pl-3 pr-10 py-2 bg-zinc-50 border border-zinc-300 rounded-lg text-xs sm:text-sm focus:ring-2 focus:ring-blue-500 outline-none text-zinc-900 font-bold">
+                        <button type="button" onclick="startVoiceRecognition('edit-debt-info-creditor')" class="absolute right-2 text-zinc-400 hover:text-blue-600 p-1 transition" title="Dictar por voz">
+                            <i class="fa-solid fa-microphone text-sm"></i>
+                        </button>
+                    </div>
+                    <div id="voice-status-edit-debt-info-creditor" class="hidden mt-1.5 p-2 rounded-lg text-xs bg-zinc-800 text-zinc-200 border border-zinc-700 space-y-1"></div>
+                </div>
+
+                <div>
+                    <label class="block text-[11px] sm:text-xs font-bold text-zinc-700 mb-1">Tipo de deuda</label>
+                    <div class="relative flex items-center">
+                        <input type="text" id="edit-debt-info-type" oninput="capitalizeFirstWordOnly(this)" placeholder="Ej: Préstamo" class="w-full pl-3 pr-10 py-2 bg-zinc-50 border border-zinc-300 rounded-lg text-xs sm:text-sm focus:ring-2 focus:ring-blue-500 outline-none text-zinc-900">
+                        <button type="button" onclick="startVoiceRecognition('edit-debt-info-type')" class="absolute right-2 text-zinc-400 hover:text-blue-600 p-1 transition" title="Dictar por voz">
+                            <i class="fa-solid fa-microphone text-sm"></i>
+                        </button>
+                    </div>
+                    <div id="voice-status-edit-debt-info-type" class="hidden mt-1.5 p-2 rounded-lg text-xs bg-zinc-800 text-zinc-200 border border-zinc-700 space-y-1"></div>
+                </div>
+                <div class="flex justify-end space-x-2 pt-3 border-t border-zinc-200">
+                    <button type="button" onclick="closeModal('modal-edit-debt-info')" class="px-3 py-1.5 text-xs text-zinc-600 hover:bg-zinc-100 rounded-lg font-bold">Cancelar</button>
+                    <button type="submit" class="px-4 py-1.5 text-xs bg-blue-600 hover:bg-blue-500 text-white font-bold rounded-lg shadow-md">Guardar cambios</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <div id="modal-edit-total-amount" class="fixed inset-0 bg-black/80 backdrop-blur-sm hidden items-center justify-center z-50 p-3">
+        <div class="bg-white text-zinc-900 rounded-2xl shadow-2xl max-w-sm w-full p-5 space-y-4">
+            <div class="flex justify-between items-center border-b border-zinc-200 pb-3">
+                <h3 class="text-sm sm:text-md font-bold text-zinc-900"><i class="fa-solid fa-pen-to-square text-blue-600 mr-2"></i> Editar monto total</h3>
+                <button onclick="closeModal('modal-edit-total-amount')" class="text-zinc-400 hover:text-zinc-700 p-1"><i class="fa-solid fa-xmark"></i></button>
+            </div>
+            <form id="form-edit-total-amount" class="space-y-3">
+                <input type="hidden" id="edit-total-debt-id">
+                <div>
+                    <label class="block text-[11px] sm:text-xs font-bold text-zinc-700 mb-1">Nuevo monto total ($)</label>
+                    <input type="text" id="edit-total-amount-input" required oninput="formatTotalAmountInput(this)" placeholder="Ej: 150.000" class="w-full px-3 py-2 bg-zinc-50 border border-zinc-300 rounded-lg text-xs sm:text-sm focus:ring-2 focus:ring-blue-500 outline-none text-zinc-900 font-bold">
+                    <p class="text-[11px] text-zinc-500 mt-1">Elige cómo deseas aplicar la diferencia de este monto.</p>
+                </div>
+                <div class="flex flex-col gap-2 pt-3 border-t border-zinc-200">
+                    <button type="button" onclick="handleSaveEditedTotalAmount(false)" class="w-full py-2 text-xs bg-blue-600 hover:bg-blue-700 text-white font-bold rounded-lg transition shadow-sm">
+                        Guardar sin recalcular cuotas
+                    </button>
+                    <button type="button" onclick="handleSaveEditedTotalAmount(true)" class="w-full py-2 text-xs bg-blue-500 hover:bg-blue-400 text-white font-bold rounded-lg transition shadow-md">
+                        Guardar y recalcular cuotas 
+                    </button>
+                    <button type="button" onclick="closeModal('modal-edit-total-amount')" class="w-full py-1.5 text-xs text-zinc-500 hover:text-zinc-800 font-bold">
+                        Cancelar
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <div id="modal-edit-installment" class="fixed inset-0 bg-black/80 backdrop-blur-sm hidden items-center justify-center z-50 p-3">
+        <div class="bg-white text-zinc-900 rounded-2xl shadow-2xl max-w-sm w-full p-5 space-y-4">
+            <div class="flex justify-between items-center border-b border-zinc-200 pb-3">
+                <h3 class="text-sm sm:text-md font-bold text-zinc-900"><i class="fa-solid fa-pen-to-square text-blue-600 mr-2"></i> Editar cuota</h3>
+                <button onclick="closeModal('modal-edit-installment')" class="text-zinc-400 hover:text-zinc-700 p-1"><i class="fa-solid fa-xmark"></i></button>
+            </div>
+            <form id="form-edit-installment" onsubmit="handleSaveEditedInstallment(event)" class="space-y-3">
+                <input type="hidden" id="edit-debt-id">
+                <input type="hidden" id="edit-installment-index">
+                <label id="edit-installment-label" class="block text-xs font-bold text-blue-700 mb-1"></label>
+                <div>
+                    <label class="block text-[11px] sm:text-xs font-bold text-zinc-700 mb-1">Monto ($)</label>
+                    <input type="text" id="edit-installment-amount" required oninput="formatTotalAmountInput(this)" class="w-full px-3 py-2 bg-zinc-50 border border-zinc-300 rounded-lg text-xs sm:text-sm focus:ring-2 focus:ring-blue-500 outline-none text-zinc-900 font-bold">
+                </div>
+                <div>
+                    <label class="block text-[11px] sm:text-xs font-bold text-zinc-700 mb-1">Fecha vencimiento</label>
+                    <input type="date" id="edit-installment-date" required class="w-full px-3 py-2 bg-zinc-50 border border-zinc-300 rounded-lg text-xs sm:text-sm focus:ring-2 focus:ring-blue-500 outline-none text-zinc-900">
+                </div>
+                <div class="flex justify-end space-x-2 pt-3 border-t border-zinc-200">
+                    <button type="button" onclick="closeModal('modal-edit-installment')" class="px-3 py-1.5 text-xs text-zinc-600 hover:bg-zinc-100 rounded-lg font-bold">Cancelar</button>
+                    <button type="submit" class="px-4 py-1.5 text-xs bg-blue-600 hover:bg-blue-500 text-white font-bold rounded-lg shadow-md">Guardar cambios</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <div id="modal-add-single-installment" class="fixed inset-0 bg-black/80 backdrop-blur-sm hidden items-center justify-center z-50 p-3">
+        <div class="bg-white text-zinc-900 rounded-2xl shadow-2xl max-w-sm w-full p-5 space-y-4">
+            <div class="flex justify-between items-center border-b border-zinc-200 pb-3">
+                <h3 class="text-sm sm:text-md font-bold text-zinc-900"><i class="fa-solid fa-plus-circle text-blue-600 mr-2"></i> Añadir nueva cuota</h3>
+                <button onclick="closeModal('modal-add-single-installment')" class="text-zinc-400 hover:text-zinc-700 p-1"><i class="fa-solid fa-xmark"></i></button>
+            </div>
+            <form id="form-add-single-installment" onsubmit="handleAddSingleInstallment(event)" class="space-y-3">
+                <input type="hidden" id="add-single-debt-id">
+                <div>
+                    <label class="block text-[11px] sm:text-xs font-bold text-zinc-700 mb-1">Monto de la cuota ($)</label>
+                    <input type="text" id="add-single-amount" oninput="formatTotalAmountInput(this)" class="w-full px-3 py-2 bg-zinc-50 border border-zinc-300 rounded-lg text-xs sm:text-sm focus:ring-2 focus:ring-blue-500 outline-none text-zinc-900 font-bold">
+                </div>
+                <div>
+                    <label class="block text-[11px] sm:text-xs font-bold text-zinc-700 mb-1">Fecha vencimiento *</label>
+                    <input type="date" id="add-single-date" required class="w-full px-3 py-2 bg-zinc-50 border border-zinc-300 rounded-lg text-xs sm:text-sm focus:ring-2 focus:ring-blue-500 outline-none text-zinc-900">
+                </div>
+                <div class="flex justify-end space-x-2 pt-3 border-t border-zinc-200">
+                    <button type="button" onclick="closeModal('modal-add-single-installment')" class="px-3 py-1.5 text-xs text-zinc-600 hover:bg-zinc-100 rounded-lg font-bold">Cancelar</button>
+                    <button type="submit" class="px-4 py-1.5 text-xs bg-blue-600 hover:bg-blue-500 text-white font-bold rounded-lg shadow-md">Añadir cuota</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <div id="custom-alert-modal" class="fixed inset-0 bg-black/80 backdrop-blur-sm hidden items-center justify-center z-50 p-4">
+        <div class="bg-white text-zinc-900 rounded-2xl shadow-2xl max-w-sm w-full p-6 text-center space-y-4 relative">
+            <button onclick="closeAlertModal()" class="absolute top-3 right-3 text-zinc-400 hover:text-zinc-700 p-1 rounded-lg transition" title="Cerrar">
+                <i class="fa-solid fa-xmark text-lg"></i>
+            </button>
+            <div id="alert-icon-container" class="mx-auto w-12 h-12 rounded-full flex items-center justify-center text-2xl"></div>
+            <div>
+                <h3 id="alert-title" class="text-base font-bold text-zinc-900"></h3>
+                <p id="alert-message" class="text-xs sm:text-sm text-zinc-600 mt-1"></p>
+            </div>
+            <div id="alert-buttons" class="flex justify-center gap-2 pt-2"></div>
+        </div>
+    </div>
+
+    <script src="deudas.js"></script>
+</body>
+</html>

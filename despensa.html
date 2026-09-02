@@ -1,0 +1,204 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="icon" type="image/png" href="iconodespensa.png">
+    <title>Gestor de despensa</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+
+    <div class="app-container">
+
+        <header class="top-header">
+            <a href="index.html" class="btn-back">‹ Volver</a>
+            <h2>🧺 Gestor de despensa</h2>
+        </header>
+
+        <nav class="sub-nav">
+            <button class="nav-tab" onclick="cambiarPestana('lista')">📋 Lista</button>
+            <button class="nav-tab" onclick="cambiarPestana('Sección 1')">Sección 1</button>
+            <button class="nav-tab" onclick="cambiarPestana('Sección 2')">Sección 2</button>
+            <button class="nav-tab" onclick="cambiarPestana('Sección 3')">Sección 3</button>
+            <button class="nav-tab" onclick="cambiarPestana('Sección 5')">Sección 5</button>
+            <button class="nav-tab" onclick="cambiarPestana('config')">⚙️ Configuración</button>
+        </nav>
+
+        <div id="toast-container" class="toast-container"></div>
+
+        <main id="view-productos">
+            <div class="loading-spinner">⏳ Cargando productos...</div>
+        </main>
+
+        <section id="view-config" style="display: none;">
+
+            <div class="config-card">
+                <h3 class="form-title-center">Agregar producto nuevo</h3>
+                <form onsubmit="crearProducto(event)">
+                    <div class="form-group">
+                        <label for="nombre-prod">Nombre del producto:</label>
+                        <div class="input-voice-group">
+                            <input type="text" id="nombre-prod" required placeholder="Ej: Leche entera">
+                            <button type="button" class="btn-voice-input" title="Dictar por voz"
+                                onclick="dictarNombre('nombre-prod', 'status-prod', this)">🎙️</button>
+                        </div>
+                        <small id="status-prod" class="voice-status-sub"></small>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="seccion-prod">Sección:</label>
+                        <select id="seccion-prod">
+                            <option value="Sección 1">Sección 1</option>
+                            <option value="Sección 2">Sección 2</option>
+                            <option value="Sección 3">Sección 3</option>
+                            <option value="Sección 5">Sección 5</option>
+                        </select>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="tipo-prod">Modo de inventario:</label>
+                        <select id="tipo-prod" onchange="actualizarFormularioTipo(this.value)">
+                            <option value="estado">Disponibilidad (Hay producto / No hay producto)</option>
+                            <option value="cantidad">Cantidades (1, 2, 3...)</option>
+                            <option value="padre">Producto principal (Tiene subproductos)</option>
+                        </select>
+                    </div>
+
+                    <div class="form-group" id="box-cantidad" style="display:none;">
+                        <label for="cant-prod">Cantidad inicial:</label>
+                        <input type="number" id="cant-prod" min="0" value="1">
+                    </div>
+
+                    <div class="form-group" id="box-estado">
+                        <label for="estado-prod">Estado actual:</label>
+                        <select id="estado-prod">
+                            <option value="hay">Hay producto</option>
+                            <option value="no_hay">No hay producto</option>
+                        </select>
+                    </div>
+
+                    <button type="submit" class="btn-submit">Guardar producto</button>
+                </form>
+            </div>
+
+            <div class="config-card">
+                <h3 class="form-title-center">Agregar subproducto</h3>
+                <form onsubmit="crearSubproducto(event)">
+                    <div class="form-group">
+                        <label for="select-padre">Producto principal:</label>
+                        <select id="select-padre" required></select>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="nombre-subprod">Nombre del subproducto:</label>
+                        <div class="input-voice-group">
+                            <input type="text" id="nombre-subprod" required placeholder="Ej: Ajo">
+                            <button type="button" class="btn-voice-input" title="Dictar por voz"
+                                onclick="dictarNombre('nombre-subprod', 'status-subprod', this)">🎙️</button>
+                        </div>
+                        <small id="status-subprod" class="voice-status-sub"></small>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="tipo-subprod">Modo de inventario:</label>
+                        <select id="tipo-subprod" onchange="actualizarFormSubprod(this.value)">
+                            <option value="estado">Disponibilidad (Hay subproducto / No hay subproducto)</option>
+                            <option value="cantidad">Cantidades (1, 2, 3...)</option>
+                        </select>
+                    </div>
+
+                    <div class="form-group" id="box-subprod-cant" style="display:none;">
+                        <label for="cant-subprod">Cantidad inicial:</label>
+                        <input type="number" id="cant-subprod" min="0" value="1">
+                    </div>
+
+                    <div class="form-group" id="box-subprod-estado">
+                        <label for="estado-subprod">Estado actual:</label>
+                        <select id="estado-subprod">
+                            <option value="hay">Hay subproducto</option>
+                            <option value="no_hay">No hay subproducto</option>
+                        </select>
+                    </div>
+
+                    <button type="submit" class="btn-submit">Guardar subproducto</button>
+                </form>
+            </div>
+
+        </section>
+
+    </div>
+
+    <div id="modal-edit" class="modal-overlay" style="display: none;">
+        <div class="modal-box">
+            <h3 id="modal-edit-title" class="form-title-center" style="color: var(--blue-btn-text);">Editar producto
+            </h3>
+            <input type="hidden" id="edit-id">
+            <input type="hidden" id="edit-sub-index">
+
+            <div class="form-group">
+                <label for="edit-nombre">Nombre:</label>
+                <div class="input-voice-group">
+                    <input type="text" id="edit-nombre" required>
+                    <button type="button" class="btn-voice-input"
+                        onclick="dictarNombre('edit-nombre', 'status-edit', this)">🎙️</button>
+                </div>
+                <small id="status-edit" class="voice-status-sub"></small>
+            </div>
+
+            <div class="form-group" id="box-edit-seccion">
+                <label for="edit-seccion">Sección:</label>
+                <select id="edit-seccion">
+                    <option value="Sección 1">Sección 1</option>
+                    <option value="Sección 2">Sección 2</option>
+                    <option value="Sección 3">Sección 3</option>
+                    <option value="Sección 5">Sección 5</option>
+                </select>
+            </div>
+
+            <div class="form-group" id="box-edit-tipo">
+                <label for="edit-tipo">Modo de inventario:</label>
+                <select id="edit-tipo" onchange="toggleEditType(this.value)">
+                    <option value="estado" id="opt-edit-estado">Disponibilidad</option>
+                    <option value="cantidad">Cantidad</option>
+                </select>
+            </div>
+
+            <div class="form-group" id="box-edit-cant" style="display:none;">
+                <label for="edit-cantidad">Cantidad:</label>
+                <input type="number" id="edit-cantidad" min="0">
+            </div>
+
+            <div class="form-group" id="box-edit-estado">
+                <label for="edit-estado">Estado:</label>
+                <select id="edit-estado">
+                    <option value="hay" id="opt-edit-hay">Hay producto</option>
+                    <option value="no_hay" id="opt-edit-nohay">No hay producto</option>
+                </select>
+            </div>
+
+            <div class="modal-actions">
+                <button type="button" class="btn-submit btn-minus" style="background:#20b2aa;"
+                    onclick="cerrarModalEdit()">Cancelar</button>
+                <button type="button" class="btn-submit" style="background:#1976d2;"
+                    onclick="guardarEdicion()">Guardar</button>
+            </div>
+        </div>
+    </div>
+
+    <div id="modal-confirm" class="modal-overlay" style="display: none;">
+        <div class="modal-box">
+            <h3 style="color: var(--red-btn-text);">¿Eliminar registro?</h3>
+            <p>Esta acción borrará el registro de producto permanentemente.</p>
+            <div class="modal-actions">
+                <button type="button" class="btn-submit" style="background:#20b2aa;"
+                    onclick="cerrarModal()">Cancelar</button>
+                <button id="btn-confirm-delete" class="btn-submit btn-minus"
+                    style="background:#d84315;">Eliminar</button>
+            </div>
+        </div>
+    </div>
+
+    <script src="despensa.js"></script>
+</body>
+</html>
